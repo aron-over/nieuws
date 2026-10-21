@@ -16,7 +16,7 @@ function timeAgo(iso) {
 }
 
 function renderTopics() {
-  const topics = ["Alles", ...new Set(state.articles.map((a) => a.topic))];
+  const topics = ["Alles", "Tech", "Pretparken", "Algemeen"];
   topicsEl.replaceChildren(
     ...topics.map((topic) => {
       const button = document.createElement("button");
@@ -56,6 +56,15 @@ function render() {
       const meta = document.createElement("div");
       meta.className = "meta";
       meta.textContent = `${a.source} · ${timeAgo(a.published)}`;
+
+      if (a.image) {
+        const img = document.createElement("img");
+        img.className = "thumb";
+        img.src = a.image;
+        img.alt = "";
+        img.loading = "lazy";
+        item.append(img);
+      }
 
       item.append(link, meta);
 

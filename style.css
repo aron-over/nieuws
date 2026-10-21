@@ -97,5 +97,15 @@ h1 { margin: 0; font-size: 1.75rem; }
 
 .list a:hover { color: var(--accent); text-decoration: underline; }
 
+.thumb {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  background: var(--line);
+}
+
 .meta { color: var(--muted); font-size: 0.85rem; margin-top: 4px; }
 .summary { margin: 6px 0 0; font-size: 0.95rem; color: var(--muted); }

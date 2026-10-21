@@ -1,10 +1,12 @@
 {
   "feeds": [
-    { "name": "NOS Algemeen", "url": "https://feeds.nos.nl/nosnieuwsalgemeen", "topic": "Nederland" },
-    { "name": "NU.nl Algemeen", "url": "https://www.nu.nl/rss/Algemeen", "topic": "Nederland" },
-    { "name": "NRC", "url": "https://www.nrc.nl/rss/", "topic": "Nederland" },
+    { "name": "Bright", "url": "https://bright.nl/rss.xml", "topic": "Tech" },
     { "name": "Tweakers", "url": "https://feeds.feedburner.com/tweakers/mixed", "topic": "Tech" },
-    { "name": "Hacker News", "url": "https://hnrss.org/frontpage", "topic": "Tech" }
+    { "name": "NU.nl Tech", "url": "https://www.nu.nl/rss/Tech", "topic": "Tech" },
+    { "name": "Pretpark Headliner", "url": "https://rssfeeds.headliner.nl/rssfeeds/pretpark/feed.xml", "topic": "Pretparken" },
+    { "name": "NOS Algemeen", "url": "https://feeds.nos.nl/nosnieuwsalgemeen", "topic": "Algemeen" },
+    { "name": "NU.nl Algemeen", "url": "https://www.nu.nl/rss/Algemeen", "topic": "Algemeen" },
+    { "name": "NRC", "url": "https://www.nrc.nl/rss/", "topic": "Algemeen" }
   ],
   "maxPerFeed": 25
 }

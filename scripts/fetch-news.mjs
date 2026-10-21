@@ -28,6 +28,16 @@ function tag(block, name) {
   return match ? decode(match[1]) : "";
 }
 
+// Zoekt een afbeelding in de feed: media:content, media:thumbnail of enclosure.
+function imageOf(block) {
+  const media = block.match(/<media:(?:content|thumbnail)[^>]*url="([^"]+)"/i);
+  if (media) return media[1];
+  const enclosure = block.match(/<enclosure[^>]*url="([^"]+)"[^>]*type="image\/[^"]*"/i);
+  if (enclosure) return enclosure[1];
+  const img = block.match(/<img[^>]*src="([^"]+)"/i);
+  return img ? decode(img[1]) : null;
+}
+
 function parseItems(xml) {
   const blocks = xml.match(/<item[\s>][\s\S]*?<\/item>/gi) ?? [];
   return blocks.map((block) => {
@@ -38,6 +48,7 @@ function parseItems(xml) {
       link,
       summary: tag(block, "description").slice(0, 300),
       published: date ? new Date(date).toISOString() : null,
+      image: imageOf(block),
     };
   });
 }
