@@ -1,0 +1,101 @@
+:root {
+  --bg: #f7f6f3;
+  --card: #ffffff;
+  --text: #1d1d1b;
+  --muted: #6b6b66;
+  --line: #e3e1dc;
+  --accent: #1f5fbf;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #161617;
+    --card: #1f1f21;
+    --text: #ececea;
+    --muted: #9a9a95;
+    --line: #2c2c2f;
+    --accent: #7aa7ff;
+  }
+}
+
+:root[data-theme="dark"] {
+  --bg: #161617;
+  --card: #1f1f21;
+  --text: #ececea;
+  --muted: #9a9a95;
+  --line: #2c2c2f;
+  --accent: #7aa7ff;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  line-height: 1.45;
+}
+
+header, main {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+header { padding-top: 24px; }
+h1 { margin: 0; font-size: 1.75rem; }
+.muted { color: var(--muted); font-size: 0.9rem; margin: 4px 0 0; }
+
+.controls { position: sticky; top: 0; background: var(--bg); padding: 16px 0 12px; }
+
+#search {
+  width: 100%;
+  padding: 10px 12px;
+  font: inherit;
+  color: var(--text);
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.topics { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+
+.topics button {
+  font: inherit;
+  font-size: 0.9rem;
+  padding: 4px 12px;
+  color: var(--text);
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.topics button[aria-pressed="true"] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.list { list-style: none; padding: 0; margin: 8px 0 48px; }
+
+.list li {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+}
+
+.list a {
+  color: var(--text);
+  font-weight: 600;
+  text-decoration: none;
+  font-size: 1.05rem;
+}
+
+.list a:hover { color: var(--accent); text-decoration: underline; }
+
+.meta { color: var(--muted); font-size: 0.85rem; margin-top: 4px; }
+.summary { margin: 6px 0 0; font-size: 0.95rem; color: var(--muted); }

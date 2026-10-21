@@ -1,0 +1,10 @@
+{
+  "feeds": [
+    { "name": "NOS Algemeen", "url": "https://feeds.nos.nl/nosnieuwsalgemeen", "topic": "Nederland" },
+    { "name": "NU.nl Algemeen", "url": "https://www.nu.nl/rss/Algemeen", "topic": "Nederland" },
+    { "name": "NRC", "url": "https://www.nrc.nl/rss/", "topic": "Nederland" },
+    { "name": "Tweakers", "url": "https://feeds.feedburner.com/tweakers/mixed", "topic": "Tech" },
+    { "name": "Hacker News", "url": "https://hnrss.org/frontpage", "topic": "Tech" }
+  ],
+  "maxPerFeed": 25
+}
