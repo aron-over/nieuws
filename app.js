@@ -1,3 +1,6 @@
+// URL van de Cloudflare Worker. Leeg laten = het bestand data/news.json uit de repo.
+const NEWS_API_URL = "";
+
 const state = { articles: [], topic: "Alles", query: "" };
 
 const listEl = document.getElementById("list");
@@ -85,7 +88,7 @@ searchEl.addEventListener("input", () => {
 });
 
 try {
-  const res = await fetch("data/news.json");
+  const res = await fetch(NEWS_API_URL || "data/news.json");
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const data = await res.json();
   state.articles = data.articles;
