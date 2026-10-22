@@ -1,5 +1,5 @@
 // URL van de Cloudflare Worker. Leeg laten = het bestand data/news.json uit de repo.
-const NEWS_API_URL = "";
+const NEWS_API_URL = "https://nieuws-api.aron-over.workers.dev/";
 
 const state = { articles: [], topic: "Alles", query: "" };
 
