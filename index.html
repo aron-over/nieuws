@@ -11,7 +11,10 @@
 </head>
 <body>
   <header>
-    <h1>Mijn Nieuws</h1>
+    <div class="head-row">
+      <h1>Mijn Nieuws</h1>
+      <button id="refresh" class="refresh" aria-label="Nieuws vernieuwen">↻</button>
+    </div>
     <p id="updated" class="muted"></p>
   </header>
 
@@ -24,6 +27,8 @@
     <p id="status" class="muted"></p>
     <ul id="list" class="list"></ul>
   </main>
+
+  <div id="toast" class="toast" role="status" hidden></div>
 
   <script type="module" src="app.js"></script>
   <script>

@@ -1,12 +1,13 @@
 {
   "feeds": [
     { "name": "Bright", "url": "https://bright.nl/rss.xml", "topic": "Tech" },
-    { "name": "Tweakers", "url": "https://feeds.feedburner.com/tweakers/mixed", "topic": "Tech" },
+    { "name": "Tweakers", "url": "https://tweakers.net/feeds/nieuws.xml", "topic": "Tech" },
     { "name": "NU.nl Tech", "url": "https://www.nu.nl/rss/Tech", "topic": "Tech" },
     { "name": "Looopings", "url": "https://www.looopings.nl/rss/nieuws.xml", "topic": "Pretparken" },
     { "name": "NOS Algemeen", "url": "https://feeds.nos.nl/nosnieuwsalgemeen", "topic": "Algemeen" },
     { "name": "NU.nl Algemeen", "url": "https://www.nu.nl/rss/Algemeen", "topic": "Algemeen" },
     { "name": "NRC", "url": "https://www.nrc.nl/rss/", "topic": "Algemeen" }
   ],
-  "maxPerFeed": 25
+  "maxPerFeed": 25,
+  "maxAgeDays": 7
 }

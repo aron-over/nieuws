@@ -45,6 +45,24 @@ header, main {
 
 header { padding-top: 24px; }
 h1 { margin: 0; font-size: 1.75rem; }
+
+.head-row { display: flex; align-items: center; justify-content: space-between; }
+
+.refresh {
+  font: inherit;
+  font-size: 1.4rem;
+  line-height: 1;
+  width: 44px;
+  height: 44px;
+  color: var(--accent);
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.refresh.spin { animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
 .muted { color: var(--muted); font-size: 0.9rem; margin: 4px 0 0; }
 
 .controls { position: sticky; top: 0; background: var(--bg); padding: 16px 0 12px; }
@@ -97,7 +115,51 @@ h1 { margin: 0; font-size: 1.75rem; }
   min-width: 0;
 }
 
+.list li { cursor: pointer; scroll-margin-top: 150px; scroll-margin-bottom: 16px; }
 .list li.open { grid-column: 1 / -1; }
+.list li.seen { opacity: 0.6; }
+
+.list li.divider {
+  grid-column: 1 / -1;
+  background: none;
+  border: none;
+  padding: 12px 0 0;
+  color: var(--muted);
+  font-size: 0.85rem;
+  cursor: default;
+}
+
+.toast {
+  position: fixed;
+  left: 16px;
+  right: 16px;
+  bottom: 16px;
+  max-width: 688px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  background: var(--text);
+  color: var(--bg);
+  border-radius: 10px;
+  font-size: 0.9rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+}
+
+.toast[hidden] { display: none; }
+
+.toast button {
+  font: inherit;
+  font-weight: 600;
+  color: var(--bg);
+  background: none;
+  border: none;
+  text-decoration: underline;
+  cursor: pointer;
+  white-space: nowrap;
+}
 
 .title {
   margin: 0;
@@ -135,25 +197,6 @@ h1 { margin: 0; font-size: 1.75rem; }
   opacity: 1;
   background: var(--line);
   border-color: var(--accent);
-}
-
-.topics button.for-you { border-color: var(--accent); color: var(--accent); }
-
-.topics button.for-you[aria-pressed="true"] {
-  background: var(--accent);
-  color: #fff;
-}
-
-.more {
-  white-space: nowrap;
-  font: inherit;
-  font-size: 0.8rem;
-  padding: 3px 10px;
-  color: var(--accent);
-  background: none;
-  border: 1px solid var(--accent);
-  border-radius: 999px;
-  cursor: pointer;
 }
 
 .source {

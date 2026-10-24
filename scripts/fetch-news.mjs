@@ -9,7 +9,7 @@ import { loadArticles } from "../lib/news.mjs";
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 
 const config = JSON.parse(await readFile(join(root, "feeds.json"), "utf8"));
-const articles = await loadArticles(config.feeds, config.maxPerFeed);
+const articles = await loadArticles(config.feeds, config.maxPerFeed, config.maxAgeDays);
 
 await mkdir(join(root, "data"), { recursive: true });
 await writeFile(

@@ -13,12 +13,12 @@ const CORS_HEADERS = {
 export default {
   async fetch(request, env, ctx) {
     const cache = caches.default;
-    const cacheKey = new Request("https://nieuws-cache.internal/news-v3");
+    const cacheKey = new Request("https://nieuws-cache.internal/news-v4");
 
     const cached = await cache.match(cacheKey);
     if (cached) return cached;
 
-    const articles = await loadArticles(config.feeds, config.maxPerFeed);
+    const articles = await loadArticles(config.feeds, config.maxPerFeed, config.maxAgeDays);
     const body = JSON.stringify({ updatedAt: new Date().toISOString(), articles });
 
     const response = new Response(body, {
