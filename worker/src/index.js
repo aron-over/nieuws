@@ -13,7 +13,7 @@ const CORS_HEADERS = {
 export default {
   async fetch(request, env, ctx) {
     const cache = caches.default;
-    const cacheKey = new Request("https://nieuws-cache.internal/news");
+    const cacheKey = new Request("https://nieuws-cache.internal/news-v3");
 
     const cached = await cache.match(cacheKey);
     if (cached) return cached;

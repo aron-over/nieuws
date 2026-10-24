@@ -2,6 +2,7 @@
 const NEWS_API_URL = "https://nieuws-api.aron-over.workers.dev/";
 
 const state = { articles: [], topic: "Alles", query: "" };
+const openArticles = new Set(); // links van artikelen waarvan "Lees meer" openstaat
 
 const listEl = document.getElementById("list");
 const topicsEl = document.getElementById("topics");
@@ -46,40 +47,61 @@ function render() {
 
   statusEl.textContent = `${visible.length} artikelen`;
 
-  listEl.replaceChildren(
-    ...visible.map((a) => {
-      const item = document.createElement("li");
+  listEl.replaceChildren(...visible.map(renderCard));
+}
 
-      const link = document.createElement("a");
-      link.href = a.link;
-      link.target = "_blank";
-      link.rel = "noopener";
-      link.textContent = a.title;
+function renderCard(a) {
+  const item = document.createElement("li");
+  const isOpen = openArticles.has(a.link);
+  item.classList.toggle("open", isOpen);
 
-      const meta = document.createElement("div");
-      meta.className = "meta";
-      meta.textContent = `${a.source} · ${timeAgo(a.published)}`;
+  if (a.image) {
+    const img = document.createElement("img");
+    img.className = "thumb";
+    img.src = a.image;
+    img.alt = "";
+    img.loading = "lazy";
+    item.append(img);
+  }
 
-      if (a.image) {
-        const img = document.createElement("img");
-        img.className = "thumb";
-        img.src = a.image;
-        img.alt = "";
-        img.loading = "lazy";
-        item.append(img);
-      }
+  const title = document.createElement("h2");
+  title.className = "title";
+  title.textContent = a.title;
 
-      item.append(link, meta);
+  const meta = document.createElement("div");
+  meta.className = "meta";
+  meta.textContent = `${a.source} · ${timeAgo(a.published)}`;
 
-      if (a.summary) {
-        const summary = document.createElement("p");
-        summary.className = "summary";
-        summary.textContent = a.summary;
-        item.append(summary);
-      }
-      return item;
-    }),
-  );
+  item.append(title, meta);
+
+  if (a.summary) {
+    const toggle = document.createElement("button");
+    toggle.className = "more";
+    toggle.setAttribute("aria-expanded", String(isOpen));
+    toggle.textContent = isOpen ? "Minder" : "Lees meer";
+    toggle.addEventListener("click", () => {
+      if (openArticles.has(a.link)) openArticles.delete(a.link);
+      else openArticles.add(a.link);
+      render();
+    });
+    item.append(toggle);
+
+    if (isOpen) {
+      const summary = document.createElement("p");
+      summary.className = "summary";
+      summary.textContent = a.summary;
+
+      const source = document.createElement("a");
+      source.className = "source";
+      source.href = a.link;
+      source.target = "_blank";
+      source.rel = "noopener";
+      source.textContent = `Lees het artikel bij ${a.source} →`;
+
+      item.append(summary, source);
+    }
+  }
+  return item;
 }
 
 searchEl.addEventListener("input", () => {
