@@ -1,7 +1,7 @@
 // Service worker: slaat de app zelf op, zodat hij ook offline opent.
 // Het nieuws (Cloudflare Worker) gaat altijd via het netwerk.
 
-const CACHE = "nieuws-shell-v1";
+const CACHE = "nieuws-shell-v2";
 const SHELL = ["./", "index.html", "style.css", "app.js", "manifest.webmanifest", "icons/icon-192.png", "icons/icon-512.png"];
 
 self.addEventListener("install", (event) => {
