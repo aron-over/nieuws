@@ -5,26 +5,45 @@ import config from "../../feeds.json";
 import { loadArticles } from "../../lib/news.mjs";
 
 const CACHE_SECONDS = 1800;
+const RETRY_SECONDS = 120; // faalde er een feed, dan snel opnieuw proberen
+const FEED_BACKUP_SECONDS = 6 * 3600; // laatste goede versie per feed, voor als een bron even weigert
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
   "Content-Type": "application/json; charset=utf-8",
 };
 
+const feedKey = (feed) => new Request(`https://nieuws-cache.internal/feed/${encodeURIComponent(feed.url)}`);
+
 export default {
   async fetch(request, env, ctx) {
     const cache = caches.default;
-    const cacheKey = new Request("https://nieuws-cache.internal/news-v4");
+    const cacheKey = new Request("https://nieuws-cache.internal/news-v6");
 
     const cached = await cache.match(cacheKey);
     if (cached) return cached;
 
-    const articles = await loadArticles(config.feeds, config.maxPerFeed, config.maxAgeDays);
+    // NU.nl weigert Cloudflare soms; dan gebruiken we de laatste goede versie van die feed.
+    let incomplete = false;
+    const articles = await loadArticles(config.feeds, config.maxPerFeed, config.maxAgeDays, {
+      onSuccess: (feed, items) =>
+        cache.put(
+          feedKey(feed),
+          new Response(JSON.stringify(items), {
+            headers: { "Cache-Control": `public, max-age=${FEED_BACKUP_SECONDS}` },
+          }),
+        ),
+      fallback: async (feed) => {
+        incomplete = true;
+        const backup = await cache.match(feedKey(feed));
+        return backup ? backup.json() : [];
+      },
+    });
     const body = JSON.stringify({ updatedAt: new Date().toISOString(), articles });
 
     const response = new Response(body, {
       headers: {
         ...CORS_HEADERS,
-        "Cache-Control": `public, max-age=${CACHE_SECONDS}`,
+        "Cache-Control": `public, max-age=${incomplete ? RETRY_SECONDS : CACHE_SECONDS}`,
       },
     });
 

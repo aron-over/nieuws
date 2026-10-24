@@ -85,27 +85,20 @@ export function scoreOf(article, weights, groups = []) {
   return sum / Math.sqrt(tokens.length) + priorOf(article, tokens, groups);
 }
 
-// Sorteert op rang, maar zet artikelen over hetzelfde verhaal (minstens 2 gedeelde woorden met een
-// al gekozen artikel) lager, zodat bijvoorbeeld één groot verhaal niet de hele lijst vult.
-export function rankedList(articles, weights, groups = []) {
-  const pool = articles.map((article) => ({
-    article,
-    tokens: new Set(tokenize(article)),
-    rank: rankOf(article, weights, groups),
-    similar: 0,
-  }));
+// Sorteert items ({ rank, tokens: Set, ... }) op rang, maar zet items die minstens 2 woorden delen
+// met een al gekozen item lager, zodat één groot onderwerp (bv. een hack) niet de hele lijst vult.
+export function diversify(items) {
+  const pool = items.map((item) => ({ item, similar: 0 }));
+  const value = (entry) => entry.item.rank - Math.min(9, 2 * entry.similar);
   const result = [];
   while (pool.length) {
     let best = 0;
-    for (let i = 1; i < pool.length; i++) {
-      const value = pool[i].rank - Math.min(9, 2 * pool[i].similar);
-      if (value > pool[best].rank - Math.min(9, 2 * pool[best].similar)) best = i;
-    }
+    for (let i = 1; i < pool.length; i++) if (value(pool[i]) > value(pool[best])) best = i;
     const [chosen] = pool.splice(best, 1);
-    result.push(chosen.article);
+    result.push(chosen.item);
     for (const other of pool) {
       let shared = 0;
-      for (const token of other.tokens) if (chosen.tokens.has(token)) shared++;
+      for (const token of other.item.tokens) if (chosen.item.tokens.has(token)) shared++;
       if (shared >= 2) other.similar++;
     }
   }

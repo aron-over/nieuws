@@ -2,31 +2,52 @@
 <html lang="nl">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Mijn Nieuws</title>
-  <meta name="theme-color" content="#1f5fbf">
+  <meta name="theme-color" content="#f7f6f3" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#161617" media="(prefers-color-scheme: dark)">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header>
-    <div class="head-row">
-      <h1>Mijn Nieuws</h1>
-      <button id="refresh" class="refresh" aria-label="Nieuws vernieuwen">↻</button>
+  <header class="masthead">
+    <div class="masthead-row">
+      <div>
+        <h1>Mijn Nieuws</h1>
+        <p class="muted"><span id="today"></span> · <span id="updated"></span></p>
+      </div>
+      <div class="masthead-actions">
+        <button id="search-toggle" class="icon-btn" aria-label="Zoeken" aria-expanded="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+        </button>
+        <button id="refresh" class="icon-btn" aria-label="Nieuws vernieuwen">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.3-5.7"/><path d="M20 4v5h-5"/></svg>
+        </button>
+      </div>
     </div>
-    <p id="updated" class="muted"></p>
+    <input id="search" class="search" type="search" placeholder="Zoek in het nieuws…" aria-label="Zoek in het nieuws" hidden>
   </header>
 
-  <main>
-    <div class="controls">
-      <input id="search" type="search" placeholder="Zoek in koppen…" aria-label="Zoek in koppen">
-      <div id="topics" class="topics" role="group" aria-label="Onderwerp"></div>
-    </div>
+  <nav id="topics" class="topics" aria-label="Onderwerp"></nav>
 
-    <p id="status" class="muted"></p>
-    <ul id="list" class="list"></ul>
+  <main>
+    <p id="status" class="status"></p>
+    <ul id="list" class="feed"></ul>
   </main>
+
+  <div id="reader" class="reader" role="dialog" aria-modal="true" aria-labelledby="reader-title" hidden>
+    <div class="reader-bar">
+      <button id="reader-close" class="icon-btn" aria-label="Terug naar het overzicht">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+      </button>
+      <span id="reader-pos" class="muted"></span>
+      <button id="reader-next" class="icon-btn" aria-label="Volgende artikel">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+    <article id="reader-body" class="reader-body"></article>
+  </div>
 
   <div id="toast" class="toast" role="status" hidden></div>
 
