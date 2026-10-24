@@ -17,7 +17,7 @@ const feedKey = (feed) => new Request(`https://nieuws-cache.internal/feed/${enco
 export default {
   async fetch(request, env, ctx) {
     const cache = caches.default;
-    const cacheKey = new Request("https://nieuws-cache.internal/news-v6");
+    const cacheKey = new Request("https://nieuws-cache.internal/news-v7");
 
     const cached = await cache.match(cacheKey);
     if (cached) return cached;

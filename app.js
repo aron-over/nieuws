@@ -56,7 +56,9 @@ const state = {
 
 // Startstemmen en interesses staan in de repo; ontbreken ze, dan leert de pagina alleen van jouw duimpjes.
 const seedVotes = await loadJson("seed-votes.json", {});
-const interests = (await loadJson("interests.json", { groups: [] })).groups;
+const interestsConfig = await loadJson("interests.json", { groups: [] });
+const interests = interestsConfig.groups;
+const spread = { topicWindow: interestsConfig.topicWindow, topicLimits: interestsConfig.topicLimits };
 
 let votes = loadVotes();
 let weights = weightsFrom(votes, seedVotes);
@@ -144,7 +146,8 @@ function computeSlots() {
   const forYou = diversify(
     candidates
       .filter((s) => !importantIds.has(s.id) && !isSeen(s) && storyScore(s) > HIDE_BELOW)
-      .map((s) => ({ story: s, rank: storyRank(s), tokens: new Set(tokenize(s.primary)) })),
+      .map((s) => ({ story: s, rank: storyRank(s), tokens: new Set(tokenize(s.primary)), topic: s.topic })),
+    spread,
   ).map((entry) => entry.story);
   const read = candidates.filter(isSeen).sort(byNewest);
 

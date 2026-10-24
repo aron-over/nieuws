@@ -1,18 +1,229 @@
 {
-  "_uitleg": "Startgewichten uit Aron's antwoorden. Een groep telt één keer mee, ongeacht hoeveel woorden erin voorkomen. 'exact' = heel woord, 'prefix' = begin van een woord, 'titlePattern' = reguliere expressie op de titel. Positief = tonen en hoger zetten, negatief = lager zetten of verbergen bij Voor jou.",
+  "_uitleg": "Startgewichten uit Aron's antwoorden. Een groep telt één keer mee, ongeacht hoeveel woorden erin voorkomen. 'exact' = heel woord, 'prefix' = begin van een woord, 'titlePattern' = reguliere expressie op de titel. Positief = tonen en hoger zetten, negatief = lager zetten of verbergen bij Voor jou. topicLimits: hoeveel verhalen van een categorie maximaal in elke reeks van topicWindow verhalen staan (tenzij een verhaal veel beter scoort).",
+  "topicWindow": 5,
+  "topicLimits": {
+    "Pretparken": 1
+  },
   "groups": [
-    { "name": "smartphones", "weight": 2, "prefix": ["pixel", "android", "smartphone", "telefoon", "iphone", "samsung", "vouwtelefoon", "nothing"], "exact": ["google", "gemini", "apple", "ios"] },
-    { "name": "ai-tech", "weight": 2, "exact": ["ai", "robot", "robots", "openai", "chatgpt", "tesla", "drone", "drones", "nvidia", "amd", "gpu"], "prefix": ["robot", "kunstmatige", "taalmodel"] },
-    { "name": "gadgets", "weight": 1.5, "exact": ["laptop", "tv", "pc", "wearable", "smartwatch", "monitor", "monitors", "garmin", "switch", "speaker", "bril", "brillen"], "prefix": ["gadget", "horloge", "bike", "step"] },
-    { "name": "privacy-security", "weight": 2, "prefix": ["privacy", "datalek", "hack", "cyber", "beveilig", "kwetsbaar", "malware", "phishing", "ddos", "wachtwoord", "afluister"], "exact": ["meta", "microsoft", "antifa"] },
-    { "name": "pretparken", "weight": 2, "prefix": ["efteling", "toverland", "walibi", "pretpark", "attractiepark", "achtbaan", "attractie", "phantasialand", "disneyland", "bobbejaanland", "slagharen", "drievliet", "hellendoorn", "duinrell", "plopsa", "dolfinarium", "europapark", "parc"], "exact": ["efteling", "coaster", "halloweenbeleving"] },
-    { "name": "tickets-prijzen", "weight": 1.5, "prefix": ["ticket", "kaartje", "jaarkaart", "openingstijd", "voorverkoop", "korting", "aanbieding"] },
-    { "name": "economie", "weight": 2, "prefix": ["koopkracht", "inflatie", "energie", "rente", "hypotheek", "belasting", "saldering", "huizenprijs", "woningmarkt", "pensioen", "stroomprijs", "gasprijs", "huurprijs"] },
-
-    { "name": "sport", "weight": -0.9, "prefix": ["voetbal", "eredivisie", "wedstrijd", "doelpunt", "kampioenschap", "wielren", "olympisch", "tennis"], "exact": ["trainer", "f1", "uefa", "fifa", "psg", "kompany"] },
-    { "name": "entertainment", "weight": -0.9, "prefix": ["zangeres", "zanger", "acteur", "actrice", "songfestival", "roddel", "toppers", "celebrity", "talentenjacht"], "exact": ["voice", "film", "serie"] },
-    { "name": "opinie-achtergrond", "weight": -0.7, "prefix": ["opinie", "column", "interview", "analyse", "achtergrond", "explainer", "teruglezen", "schermtijd"] },
-    { "name": "puzzels", "weight": -1.5, "prefix": ["puzzel", "sudoku", "woordzoeker", "kruiswoord"] },
-    { "name": "softwareversies", "weight": -1.5, "titlePattern": "\\s\\d{1,4}\\.\\d{1,3}(\\.\\d+)*$" }
+    {
+      "name": "smartphones",
+      "weight": 2,
+      "prefix": [
+        "pixel",
+        "android",
+        "smartphone",
+        "telefoon",
+        "iphone",
+        "samsung",
+        "vouwtelefoon",
+        "nothing"
+      ],
+      "exact": [
+        "google",
+        "gemini",
+        "apple",
+        "ios"
+      ]
+    },
+    {
+      "name": "ai-tech",
+      "weight": 2,
+      "exact": [
+        "ai",
+        "robot",
+        "robots",
+        "openai",
+        "chatgpt",
+        "tesla",
+        "drone",
+        "drones",
+        "nvidia",
+        "amd",
+        "gpu"
+      ],
+      "prefix": [
+        "robot",
+        "kunstmatige",
+        "taalmodel"
+      ]
+    },
+    {
+      "name": "gadgets",
+      "weight": 1.5,
+      "exact": [
+        "laptop",
+        "tv",
+        "pc",
+        "wearable",
+        "smartwatch",
+        "monitor",
+        "monitors",
+        "garmin",
+        "switch",
+        "speaker",
+        "bril",
+        "brillen"
+      ],
+      "prefix": [
+        "gadget",
+        "horloge",
+        "bike",
+        "step"
+      ]
+    },
+    {
+      "name": "privacy-security",
+      "weight": 2,
+      "prefix": [
+        "privacy",
+        "datalek",
+        "hack",
+        "cyber",
+        "beveilig",
+        "kwetsbaar",
+        "malware",
+        "phishing",
+        "ddos",
+        "wachtwoord",
+        "afluister"
+      ],
+      "exact": [
+        "meta",
+        "microsoft",
+        "antifa"
+      ]
+    },
+    {
+      "name": "pretparken",
+      "weight": 1.2,
+      "prefix": [
+        "efteling",
+        "toverland",
+        "walibi",
+        "pretpark",
+        "attractiepark",
+        "achtbaan",
+        "attractie",
+        "phantasialand",
+        "disneyland",
+        "bobbejaanland",
+        "slagharen",
+        "drievliet",
+        "hellendoorn",
+        "duinrell",
+        "plopsa",
+        "dolfinarium",
+        "europapark",
+        "parc"
+      ],
+      "exact": [
+        "efteling",
+        "coaster",
+        "halloweenbeleving"
+      ]
+    },
+    {
+      "name": "tickets-prijzen",
+      "weight": 1,
+      "prefix": [
+        "ticket",
+        "kaartje",
+        "jaarkaart",
+        "openingstijd",
+        "voorverkoop",
+        "korting",
+        "aanbieding"
+      ]
+    },
+    {
+      "name": "economie",
+      "weight": 2,
+      "prefix": [
+        "koopkracht",
+        "inflatie",
+        "energie",
+        "rente",
+        "hypotheek",
+        "belasting",
+        "saldering",
+        "huizenprijs",
+        "woningmarkt",
+        "pensioen",
+        "stroomprijs",
+        "gasprijs",
+        "huurprijs"
+      ]
+    },
+    {
+      "name": "sport",
+      "weight": -0.9,
+      "prefix": [
+        "voetbal",
+        "eredivisie",
+        "wedstrijd",
+        "doelpunt",
+        "kampioenschap",
+        "wielren",
+        "olympisch",
+        "tennis"
+      ],
+      "exact": [
+        "trainer",
+        "f1",
+        "uefa",
+        "fifa",
+        "psg",
+        "kompany"
+      ]
+    },
+    {
+      "name": "entertainment",
+      "weight": -0.9,
+      "prefix": [
+        "zangeres",
+        "zanger",
+        "acteur",
+        "actrice",
+        "songfestival",
+        "roddel",
+        "toppers",
+        "celebrity",
+        "talentenjacht"
+      ],
+      "exact": [
+        "voice",
+        "film",
+        "serie"
+      ]
+    },
+    {
+      "name": "opinie-achtergrond",
+      "weight": -0.7,
+      "prefix": [
+        "opinie",
+        "column",
+        "interview",
+        "analyse",
+        "achtergrond",
+        "explainer",
+        "teruglezen",
+        "schermtijd"
+      ]
+    },
+    {
+      "name": "puzzels",
+      "weight": -1.5,
+      "prefix": [
+        "puzzel",
+        "sudoku",
+        "woordzoeker",
+        "kruiswoord"
+      ]
+    },
+    {
+      "name": "softwareversies",
+      "weight": -1.5,
+      "titlePattern": "\\s\\d{1,4}\\.\\d{1,3}(\\.\\d+)*$"
+    }
   ]
 }

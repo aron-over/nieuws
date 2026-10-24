@@ -85,12 +85,24 @@ export function scoreOf(article, weights, groups = []) {
   return sum / Math.sqrt(tokens.length) + priorOf(article, tokens, groups);
 }
 
-// Sorteert items ({ rank, tokens: Set, ... }) op rang, maar zet items die minstens 2 woorden delen
+// Sorteert items ({ rank, tokens: Set, topic }) op rang, maar zet items die minstens 2 woorden delen
 // met een al gekozen item lager, zodat één groot onderwerp (bv. een hack) niet de hele lijst vult.
-export function diversify(items) {
+// topicLimits (bv. { Pretparken: 1 }): hoeveel items van een categorie er maximaal in elke reeks van
+// topicWindow items achter elkaar mogen staan, tenzij een item veel beter scoort.
+const TOPIC_PENALTY = 4;
+
+export function diversify(items, { topicWindow = 5, topicLimits = {} } = {}) {
   const pool = items.map((item) => ({ item, similar: 0 }));
-  const value = (entry) => entry.item.rank - Math.min(9, 2 * entry.similar);
   const result = [];
+  const value = (entry) => {
+    const limit = topicLimits[entry.item.topic];
+    let penalty = 0;
+    if (limit !== undefined) {
+      const recent = result.slice(-topicWindow).filter((r) => r.topic === entry.item.topic).length;
+      if (recent >= limit) penalty = TOPIC_PENALTY * (recent - limit + 1);
+    }
+    return entry.item.rank - Math.min(9, 2 * entry.similar) - penalty;
+  };
   while (pool.length) {
     let best = 0;
     for (let i = 1; i < pool.length; i++) if (value(pool[i]) > value(pool[best])) best = i;
