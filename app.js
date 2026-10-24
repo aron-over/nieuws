@@ -1,10 +1,9 @@
-import { loadVotes, saveVotes, castVote, weightsFrom, scoreOf, rankOf } from "./learn.js";
+import { loadVotes, saveVotes, castVote, weightsFrom, scoreOf, rankedList } from "./learn.js";
 
 // URL van de Cloudflare Worker. Leeg laten = het bestand data/news.json uit de repo.
 const NEWS_API_URL = "https://nieuws-api.aron-over.workers.dev/";
 
 const FOR_YOU_KEY = "nieuws.foryou";
-const MIN_VOTES = 5; // pas daarna begint "Voor jou" te sorteren en te verbergen
 const HIDE_BELOW = -1; // artikelen met een lagere score verdwijnen bij "Voor jou"
 
 function readFlag() {
@@ -18,8 +17,22 @@ function readFlag() {
 const state = { articles: [], topic: "Alles", query: "", forYou: readFlag() };
 const openArticles = new Set(); // links van artikelen waarvan "Lees meer" openstaat
 
+async function loadJson(path, fallback) {
+  try {
+    const res = await fetch(path);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return await res.json();
+  } catch {
+    return fallback;
+  }
+}
+
+// Startstemmen en interesses staan in de repo; ontbreken ze, dan leert de pagina alleen van jouw duimpjes.
+const seedVotes = await loadJson("seed-votes.json", {});
+const interests = (await loadJson("interests.json", { groups: [] })).groups;
+
 let votes = loadVotes();
-let weights = weightsFrom(votes);
+let weights = weightsFrom(votes, seedVotes);
 
 const listEl = document.getElementById("list");
 const topicsEl = document.getElementById("topics");
@@ -68,7 +81,7 @@ function renderTopics() {
 
 function vote(article, value) {
   votes = castVote(votes, article, value);
-  weights = weightsFrom(votes);
+  weights = weightsFrom(votes, seedVotes);
   saveVotes(votes);
   render();
 }
@@ -83,27 +96,19 @@ function render() {
       (!query || a.title.toLowerCase().includes(query) || a.summary.toLowerCase().includes(query)),
   );
 
-  const voteCount = Object.keys(votes).length;
-  const learning = state.forYou && voteCount >= MIN_VOTES;
   let hidden = 0;
 
-  if (learning) {
+  if (state.forYou) {
     const total = visible.length;
-    visible = visible
-      .filter((a) => votes[a.link]?.v !== -1 && scoreOf(a, weights) > HIDE_BELOW)
-      .map((a) => ({ article: a, rank: rankOf(a, weights) }))
-      .sort((x, y) => y.rank - x.rank)
-      .map((entry) => entry.article);
+    visible = rankedList(
+      visible.filter((a) => votes[a.link]?.v !== -1 && scoreOf(a, weights, interests) > HIDE_BELOW),
+      weights,
+      interests,
+    );
     hidden = total - visible.length;
   }
 
-  let status = `${visible.length} artikelen`;
-  if (state.forYou && !learning) {
-    status += ` · geef nog ${MIN_VOTES - voteCount} duimpjes, dan leert Voor jou van je smaak`;
-  } else if (learning && hidden) {
-    status += ` · ${hidden} verborgen`;
-  }
-  statusEl.textContent = status;
+  statusEl.textContent = `${visible.length} artikelen${hidden ? ` · ${hidden} verborgen` : ""}`;
 
   listEl.replaceChildren(...visible.map(renderCard));
 }
