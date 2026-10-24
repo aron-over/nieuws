@@ -112,9 +112,40 @@ h1 { margin: 0; font-size: 1.75rem; }
 
 .list li.open .title { -webkit-line-clamp: unset; overflow: visible; font-size: 1.05rem; }
 
-.more {
-  align-self: flex-start;
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   margin-top: 6px;
+}
+
+.vote {
+  font: inherit;
+  font-size: 1rem;
+  line-height: 1;
+  padding: 4px 8px;
+  background: none;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  cursor: pointer;
+  opacity: 0.55;
+}
+
+.vote[aria-pressed="true"] {
+  opacity: 1;
+  background: var(--line);
+  border-color: var(--accent);
+}
+
+.topics button.for-you { border-color: var(--accent); color: var(--accent); }
+
+.topics button.for-you[aria-pressed="true"] {
+  background: var(--accent);
+  color: #fff;
+}
+
+.more {
+  white-space: nowrap;
   font: inherit;
   font-size: 0.8rem;
   padding: 3px 10px;
