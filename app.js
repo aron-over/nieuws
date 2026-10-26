@@ -1,4 +1,4 @@
-import { loadVotes, saveVotes, castVote, weightsFrom, scoreOf, rankOf, diversify, tokenize } from "./learn.js";
+import { loadVotes, saveVotes, castVote, weightsFrom, scoreOf, rankOf, diversify, tokenize, matchedGroups } from "./learn.js";
 import { buildStories, publisherOf, IMPORTANT_PUBLISHERS } from "./stories.js";
 
 // URL van de Cloudflare Worker. Lukt die niet, dan valt de pagina terug op data/news.json uit de repo.
@@ -9,7 +9,9 @@ const HIDE_BELOW = -1; // verhalen met een lagere score worden niet getoond
 const MAX_IMPORTANT = 3; // zoveel grote verhalen staan maximaal onder "Belangrijk nu"
 const SEEN_KEY = "nieuws.seen.v1";
 const LAST_VISIT_KEY = "nieuws.lastVisit";
+const MUTED_KEY = "nieuws.muted.v1";
 const MAX_SEEN = 1500;
+const MAX_AGE_HOURS = 72; // standaard: verhalen die zoveel uur ouder zijn dan het nieuwste, vallen af uit "Voor jou"
 const REFRESH_AFTER_MS = 10 * 60 * 1000; // opnieuw laden als de app zo lang op de achtergrond stond
 const UNDO_MS = 6000;
 const SWIPE_DISMISS_PX = 110;
@@ -47,6 +49,7 @@ const state = {
   topic: "Alles",
   query: "",
   slots: [], // wat er in de lijst staat: { kind: "label", text } of { kind: "story", id, hero }
+  newest: Date.now(), // tijdstip van het nieuwste verhaal; referentie voor leeftijd
   slotsKey: "", // voor welk filter en welke lading die slots berekend zijn
   loadId: 0,
   loadedAt: 0,
@@ -59,13 +62,30 @@ const seedVotes = await loadJson("seed-votes.json", {});
 const interestsConfig = await loadJson("interests.json", { groups: [] });
 const interests = interestsConfig.groups;
 const spread = { topicWindow: interestsConfig.topicWindow, topicLimits: interestsConfig.topicLimits };
+const maxAgeHours = interestsConfig.maxAgeHours ?? MAX_AGE_HOURS;
 
 let votes = loadVotes();
 let weights = weightsFrom(votes, seedVotes);
 let seen = readStored(SEEN_KEY, {}); // link -> tijdstip waarop je het las
 
+// Gedempt: bronnen (naam zoals publisherOf die geeft) verdwijnen helemaal; groepen uit interests.json
+// (bv. "ai-tech") verbergen verhalen in dat onderwerp uit de lijst. Opgeslagen in localStorage.
+let muted = (() => {
+  const stored = readStored(MUTED_KEY, {});
+  return { sources: stored.sources ?? [], groups: stored.groups ?? [] };
+})();
+const groupLabel = (name) => name.replace(/-/g, " ");
+const isMutedGroup = (story) => muted.groups.length > 0 && matchedGroups(story.primary, interests).some((g) => muted.groups.includes(g));
+
+function setMuted(next) {
+  muted = next;
+  writeStored(MUTED_KEY, muted);
+  applyArticles();
+}
+
 const $ = (id) => document.getElementById(id);
 const listEl = $("list");
+const mutedEl = $("muted");
 const topicsEl = $("topics");
 const statusEl = $("status");
 const updatedEl = $("updated");
@@ -99,11 +119,15 @@ const isDisliked = (story) => story.articles.some((a) => votes[a.link]?.v === -1
 const isLiked = (story) => votes[story.primary.link]?.v === 1;
 // Gezien = gelezen, of een duimpje omhoog gegeven. Die verhalen zakken naar "Al gezien".
 const isSeen = (story) => story.articles.some((a) => a.link in seen || votes[a.link]?.v === 1);
+// Leeftijd meten we t.o.v. het nieuwste verhaal, niet t.o.v. de klok: ook na een paar dagen weg zie je het nieuwste bovenaan.
+const isFresh = (story) =>
+  !story.published || state.newest - new Date(story.published).getTime() < maxAgeHours * 3600000;
 const isNew = (story) => !isSeen(story) && !!story.published && new Date(story.published).getTime() > state.since;
 const isImportant = (story) => story.publishers >= IMPORTANT_PUBLISHERS;
 const inTopic = (story) => state.topic === "Alles" || story.articles.some((a) => a.topic === state.topic);
 const storyScore = (story) => Math.max(...story.articles.map((a) => scoreOf(a, weights, interests)));
-const storyRank = (story) => Math.max(...story.articles.map((a) => rankOf(a, weights, interests)));
+const recency = () => ({ now: state.newest, weight: interestsConfig.recencyWeight, hours: interestsConfig.recencyHours });
+const storyRank = (story) => Math.max(...story.articles.map((a) => rankOf(a, weights, interests, recency())));
 
 function markSeen(story) {
   const now = Date.now();
@@ -137,15 +161,15 @@ function computeSlots() {
       .map((s) => ({ kind: "story", id: s.id }));
   }
 
-  const candidates = stories.filter((s) => !isDisliked(s));
+  const candidates = stories.filter((s) => !isDisliked(s) && !isMutedGroup(s));
   const important = candidates
-    .filter((s) => isImportant(s) && !isSeen(s))
+    .filter((s) => isImportant(s) && !isSeen(s) && isFresh(s))
     .sort((a, b) => b.publishers - a.publishers || byNewest(a, b))
     .slice(0, MAX_IMPORTANT);
   const importantIds = new Set(important.map((s) => s.id));
   const forYou = diversify(
     candidates
-      .filter((s) => !importantIds.has(s.id) && !isSeen(s) && storyScore(s) > HIDE_BELOW)
+      .filter((s) => !importantIds.has(s.id) && !isSeen(s) && isFresh(s) && storyScore(s) > HIDE_BELOW)
       .map((s) => ({ story: s, rank: storyRank(s), tokens: new Set(tokenize(s.primary)), topic: s.topic })),
     spread,
   ).map((entry) => entry.story);
@@ -195,7 +219,43 @@ function render({ keepOrder = false } = {}) {
     const any = items.some((el) => el.classList.contains("story"));
     statusEl.textContent = any ? "" : state.query ? "Niets gevonden." : "Je bent helemaal bij.";
   }
-  listEl.replaceChildren(...items);
+  const note = state.query ? null : renderSinceNote();
+  listEl.replaceChildren(...(note ? [note, ...items] : items));
+  renderMuted();
+}
+
+// "5 nieuw sinds je laatste bezoek": alleen als je minstens een uur weg was en er verhalen zijn die je nog niet zag.
+function renderSinceNote() {
+  const away = Date.now() - state.since;
+  if (away < 3600000) return null;
+  const count = state.slots.filter((s) => s.kind === "story" && isNew(state.storyById.get(s.id))).length;
+  if (!count) return null;
+  const hours = Math.round(away / 3600000);
+  const ago = hours < 24 ? `${hours} uur` : `${Math.round(hours / 24)} ${hours < 36 ? "dag" : "dagen"}`;
+  const li = document.createElement("li");
+  li.className = "since-note";
+  li.textContent = `${count} nieuw sinds je laatste bezoek, ${ago} geleden`;
+  return li;
+}
+
+// Lijst met gedempte bronnen en onderwerpen onder de berichten, zodat je ze weer kunt aanzetten.
+function renderMuted() {
+  const chips = [
+    ...muted.sources.map((name) => ({ label: name, remove: () => setMuted({ ...muted, sources: muted.sources.filter((s) => s !== name) }) })),
+    ...muted.groups.map((name) => ({ label: groupLabel(name), remove: () => setMuted({ ...muted, groups: muted.groups.filter((g) => g !== name) }) })),
+  ];
+  mutedEl.hidden = !chips.length;
+  mutedEl.replaceChildren(
+    ...(chips.length ? [Object.assign(document.createElement("p"), { textContent: "Gedempt, tik om weer aan te zetten:" })] : []),
+    ...chips.map(({ label, remove }) => {
+      const button = document.createElement("button");
+      button.className = "chip";
+      button.textContent = `${label} ✕`;
+      button.setAttribute("aria-label", `${label} weer aanzetten`);
+      button.addEventListener("click", remove);
+      return button;
+    }),
+  );
 }
 
 function renderTopics() {
@@ -502,6 +562,38 @@ function renderReader(story) {
     else closeReader();
   });
   actions.append(more, less);
+
+  // Dempen: de hele bron of het onderwerp waar dit verhaal bij hoort verdwijnt, met ongedaan maken.
+  const publisher = publisherOf(a);
+  const muteOptions = [];
+  if (!muted.sources.includes(publisher)) {
+    muteOptions.push({
+      text: `🔇 Geen ${publisher} meer`,
+      apply: () => setMuted({ ...muted, sources: [...muted.sources, publisher] }),
+      undo: () => setMuted({ ...muted, sources: muted.sources.filter((s) => s !== publisher) }),
+      message: `${publisher} is gedempt.`,
+    });
+  }
+  const group = matchedGroups(a, interests).find((g) => !muted.groups.includes(g));
+  if (group) {
+    muteOptions.push({
+      text: `🔇 Geen "${groupLabel(group)}" meer`,
+      apply: () => setMuted({ ...muted, groups: [...muted.groups, group] }),
+      undo: () => setMuted({ ...muted, groups: muted.groups.filter((g2) => g2 !== group) }),
+      message: `Onderwerp "${groupLabel(group)}" is gedempt.`,
+    });
+  }
+  for (const option of muteOptions) {
+    const button = document.createElement("button");
+    button.className = "pill";
+    button.textContent = option.text;
+    button.addEventListener("click", () => {
+      closeReader();
+      option.apply();
+      showToast(option.message, option.undo);
+    });
+    actions.append(button);
+  }
   parts.push(actions);
 
   const nav = document.createElement("div");
@@ -614,11 +706,18 @@ async function loadNews({ fresh = false } = {}) {
   }
 
   state.articles = data.articles;
-  state.stories = buildStories(state.articles);
-  state.storyById = new Map(state.stories.map((s) => [s.id, s]));
-  state.loadId++;
+  applyArticles();
   state.loadedAt = Date.now();
   updatedEl.textContent = `bijgewerkt ${shortAgo(data.updatedAt)}`.replace("bijgewerkt zojuist", "zojuist bijgewerkt");
+}
+
+// Bouwt de verhalen opnieuw op uit state.articles, zonder gedempte bronnen, en tekent de lijst opnieuw.
+function applyArticles() {
+  const visible = state.articles.filter((a) => !muted.sources.includes(publisherOf(a)));
+  state.stories = buildStories(visible);
+  state.storyById = new Map(state.stories.map((s) => [s.id, s]));
+  state.newest = Math.max(0, ...state.stories.map((s) => (s.published ? new Date(s.published).getTime() : 0))) || Date.now();
+  state.loadId++;
   render();
 }
 

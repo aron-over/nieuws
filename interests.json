@@ -1,5 +1,8 @@
 {
   "_uitleg": "Startgewichten uit Aron's antwoorden. Een groep telt één keer mee, ongeacht hoeveel woorden erin voorkomen. 'exact' = heel woord, 'prefix' = begin van een woord, 'titlePattern' = reguliere expressie op de titel. Positief = tonen en hoger zetten, negatief = lager zetten of verbergen bij Voor jou. topicLimits: hoeveel verhalen van een categorie maximaal in elke reeks van topicWindow verhalen staan (tenzij een verhaal veel beter scoort).",
+  "recencyWeight": 4,
+  "recencyHours": 18,
+  "maxAgeHours": 72,
   "topicWindow": 5,
   "topicLimits": {
     "Pretparken": 1

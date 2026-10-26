@@ -65,15 +65,23 @@ export function weightsFrom(votes, seedVotes = {}) {
 }
 
 // Startgewicht uit interests.json: elke groep telt één keer mee, het totaal is begrensd.
+function hitsGroup(group, article, tokens) {
+  return (
+    tokens.some((t) => group.exact?.includes(t) || group.prefix?.some((p) => t.startsWith(p))) ||
+    (group.titlePattern && new RegExp(group.titlePattern).test(article.title))
+  );
+}
+
 export function priorOf(article, tokens, groups) {
   let sum = 0;
-  for (const group of groups) {
-    const hit =
-      tokens.some((t) => group.exact?.includes(t) || group.prefix?.some((p) => t.startsWith(p))) ||
-      (group.titlePattern && new RegExp(group.titlePattern).test(article.title));
-    if (hit) sum += group.weight;
-  }
+  for (const group of groups) if (hitsGroup(group, article, tokens)) sum += group.weight;
   return Math.max(-MAX_PRIOR, Math.min(MAX_PRIOR, sum));
+}
+
+// Namen van de groepen uit interests.json waar dit artikel in valt (voor "dit onderwerp dempen").
+export function matchedGroups(article, groups) {
+  const tokens = tokenize(article);
+  return groups.filter((group) => hitsGroup(group, article, tokens)).map((group) => group.name);
 }
 
 // Score van een artikel: geleerd deel (gedeeld door de wortel van het aantal woorden) plus startgewicht.
@@ -118,7 +126,12 @@ export function diversify(items, { topicWindow = 5, topicLimits = {} } = {}) {
 }
 
 // Nieuwere artikelen krijgen een bonus, zodat het nieuws van vandaag niet wegzakt.
-export function rankOf(article, weights, groups = []) {
-  const hours = article.published ? (Date.now() - new Date(article.published)) / 3600000 : 48;
-  return scoreOf(article, weights, groups) + 1.5 * Math.exp(-Math.max(0, hours) / 24);
+// recency: { now, weight, hours }. `now` is het tijdstip van het nieuwste artikel (niet de klok), zodat
+// de volgorde hetzelfde blijft als je een paar dagen niet gekeken hebt.
+export const DEFAULT_RECENCY = { weight: 4, hours: 18 };
+
+export function rankOf(article, weights, groups = [], recency = {}) {
+  const { now = Date.now(), weight = DEFAULT_RECENCY.weight, hours: scale = DEFAULT_RECENCY.hours } = recency;
+  const hours = article.published ? (now - new Date(article.published)) / 3600000 : 48;
+  return scoreOf(article, weights, groups) + weight * Math.exp(-Math.max(0, hours) / scale);
 }

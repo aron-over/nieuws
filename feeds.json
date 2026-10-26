@@ -1,15 +1,21 @@
 {
   "feeds": [
-    { "name": "Bright", "url": "https://bright.nl/rss.xml", "topic": "Tech" },
+    { "name": "Bright", "url": "https://bright.nl/rss.xml", "topic": "Tech", "excludeLink": "/plusplus/" },
     { "name": "Tweakers", "url": "https://tweakers.net/feeds/nieuws.xml", "topic": "Tech" },
     { "name": "NU.nl Tech", "url": "https://www.nu.nl/rss/Tech", "topic": "Tech" },
     { "name": "Android Planet", "url": "https://www.androidplanet.nl/feed/", "topic": "Tech" },
+    { "name": "iCulture", "url": "https://www.iculture.nl/feed/", "topic": "Tech" },
+    { "name": "Techzine", "url": "https://www.techzine.nl/feed/", "topic": "Tech" },
+    { "name": "NOS Tech", "url": "https://feeds.nos.nl/nosnieuwstech", "topic": "Tech" },
+    { "name": "GSMArena", "url": "https://www.gsmarena.com/rss-news-reviews.php3", "topic": "Tech" },
+    { "name": "IGN Nederland", "url": "https://nl.ign.com/feed.xml", "topic": "Tech" },
+    { "name": "The Decoder", "url": "https://the-decoder.com/feed/", "topic": "Tech" },
+    { "name": "TechCrunch AI", "url": "https://techcrunch.com/category/artificial-intelligence/feed/", "topic": "Tech" },
     { "name": "Looopings", "url": "https://www.looopings.nl/rss/nieuws.xml", "topic": "Pretparken" },
     { "name": "NOS Algemeen", "url": "https://feeds.nos.nl/nosnieuwsalgemeen", "topic": "Algemeen" },
     { "name": "NU.nl Algemeen", "url": "https://www.nu.nl/rss/Algemeen", "topic": "Algemeen" },
-    { "name": "RTL Nieuws", "url": "https://www.rtlnieuws.nl/rss.xml", "topic": "Algemeen" },
-    { "name": "NRC", "url": "https://www.nrc.nl/rss/", "topic": "Algemeen", "excludeLink": "/puzzels/" }
+    { "name": "RTL Nieuws", "url": "https://www.rtlnieuws.nl/rss.xml", "topic": "Algemeen" }
   ],
   "maxPerFeed": 25,
-  "maxAgeDays": 7
+  "maxAgeDays": 3
 }
